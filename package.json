@@ -1,0 +1,14 @@
+{
+  "name": "ai-builder-dashboard",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev --yes"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15"
+  },
+  "devDependencies": {
+    "vercel": "^39.0.0"
+  }
+}

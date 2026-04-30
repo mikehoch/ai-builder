@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automation Roadmap — Mike Hochleutner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --crimson:      #8B1538;
+      --crimson-dark: #42001D;
+      --amber:        #F59F0A;
+      --amber-light:  rgba(245,159,10,0.12);
+      --peach:        #F7CFA6;
+      --base:         #1A1C23;
+      --muted:        #6C727F;
+      --dim:          #9CA3AF;
+      --bg:           #FAFAFA;
+      --surface:      #FFFFFF;
+      --surface2:     #F3F4F6;
+      --border:       #E5E7EB;
+      --border-warm:  #E8D5C4;
+      --green:        #059669;
+      --green-light:  rgba(5,150,105,0.1);
+      --blue:         #2563EB;
+      --blue-light:   rgba(37,99,235,0.08);
+      --font-display: 'Fraunces', Times, serif;
+      --font-ui:      'Inter', Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--base);
+      font-family: var(--font-ui);
+      font-size: 15px;
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    a { color: var(--crimson); text-decoration: none; }
+    a:hover { color: var(--amber); }
+
+    /* ── Layout ── */
+    .page { max-width: 1280px; margin: 0 auto; padding: 44px 32px 80px; }
+
+    /* ── Header ── */
+    .header {
+      padding-bottom: 32px;
+      margin-bottom: 40px;
+      border-bottom: 2px solid var(--crimson);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .header-left {}
+    .header-eyebrow {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .header h1 {
+      font-family: var(--font-display);
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--crimson);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .header .subtitle {
+      font-family: var(--font-display);
+      font-size: 15px;
+      color: var(--muted);
+      font-style: italic;
+    }
+    .header .date {
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 8px;
+    }
+    .header-right {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      padding-bottom: 4px;
+    }
+    .stat-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 18px;
+      min-width: 72px;
+    }
+    .stat-num {
+      font-family: var(--font-display);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--crimson);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-top: 4px;
+    }
+
+    /* ── Board ── */
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 900px) {
+      .board { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .board { grid-template-columns: 1fr; }
+    }
+
+    /* ── Column ── */
+    .column {
+      border-radius: 14px;
+      padding: 16px 14px 20px;
+      min-height: 300px;
+    }
+    .column-suggested {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+    }
+    .column-to-build {
+      background: #FFF7F0;
+      border: 1px solid var(--border-warm);
+    }
+    .column-in-progress {
+      background: rgba(245,159,10,0.05);
+      border: 1px solid rgba(245,159,10,0.25);
+    }
+    .column-done {
+      background: var(--green-light);
+      border: 1px solid rgba(5,150,105,0.2);
+    }
+
+    .column-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid transparent;
+    }
+    .column-suggested .column-header  { border-bottom-color: var(--border); }
+    .column-to-build .column-header   { border-bottom-color: var(--border-warm); }
+    .column-in-progress .column-header{ border-bottom-color: rgba(245,159,10,0.3); }
+    .column-done .column-header       { border-bottom-color: rgba(5,150,105,0.25); }
+
+    .column-title {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .column-suggested  .column-title { color: var(--dim); }
+    .column-to-build   .column-title { color: var(--muted); }
+    .column-in-progress .column-title { color: #92610A; }
+    .column-done       .column-title { color: var(--green); }
+
+    .column-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .column-title-group { display: flex; align-items: center; gap: 8px; }
+    .column-suggested  .column-dot { background: var(--dim); }
+    .column-to-build   .column-dot { background: var(--border-warm); border: 1px solid #d1b89a; }
+    .column-in-progress .column-dot { background: var(--amber); }
+    .column-done       .column-dot { background: var(--green); }
+
+    .column-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--dim);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 1px 9px;
+    }
+
+    .card-list {
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-list.drag-over {
+      outline: 2px dashed var(--crimson);
+      outline-offset: 3px;
+      border-radius: 8px;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      cursor: grab;
+      user-select: none;
+      /* transform intentionally omitted — WAAPI owns it during drag/FLIP */
+      transition: box-shadow 0.15s, border-color 0.15s, opacity 0.15s;
+      position: relative;
+    }
+    .card:hover {
+      border-color: rgba(139,21,56,0.25);
+      box-shadow: 0 3px 12px rgba(139,21,56,0.08);
+    }
+    .card:active { cursor: grabbing; }
+
+    /* Placeholder: hidden but keeps its layout space so surrounding cards flow normally */
+    .card.drag-source {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .column-suggested .card {
+      background: var(--surface2);
+      border-color: var(--border);
+      opacity: 0.75;
+    }
+    .column-suggested .card:hover {
+      opacity: 1;
+      border-color: rgba(139,21,56,0.2);
+    }
+    .column-done .card {
+      opacity: 0.7;
+    }
+    .column-done .card:hover { opacity: 1; }
+
+    .card-goal-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 6px;
+    }
+    .card-name {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--base);
+      line-height: 1.35;
+      margin-bottom: 6px;
+    }
+    .column-suggested .card-name { color: var(--muted); }
+    .column-done .card-name { text-decoration: line-through; color: var(--muted); }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+      margin-bottom: 10px;
+    }
+    .column-done .card-desc { color: var(--dim); }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    /* Priority tags */
+    .priority {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+    }
+    .priority-high   { background: rgba(139,21,56,0.08); color: var(--crimson); border: 1px solid rgba(139,21,56,0.18); }
+    .priority-medium { background: var(--amber-light);   color: #92610A;        border: 1px solid rgba(245,159,10,0.25); }
+    .priority-low    { background: var(--surface2);      color: var(--muted);   border: 1px solid var(--border); }
+
+    .card-goal-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--dim);
+    }
+
+    /* Drop-target column highlight */
+    .card-list.drag-over {
+      background: rgba(139,21,56,0.03);
+    }
+
+    /* ── Reset button ── */
+    .board-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+    .btn-reset {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--dim);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 5px 12px;
+      cursor: pointer;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .btn-reset:hover { color: var(--crimson); border-color: rgba(139,21,56,0.3); }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--dim);
+      margin-top: 64px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+    .footer a { color: var(--muted); border-bottom: 1px solid var(--border); }
+    .footer a:hover { color: var(--crimson); border-color: var(--crimson); }
+
+    /* Loading / error states */
+    .card-loading {
+      color: var(--dim);
+      font-size: 13px;
+      padding: 16px 4px;
+      text-align: center;
+    }
+    .board-error {
+      color: var(--crimson);
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    /* Submitted-by attribution on cards from others */
+    .card-submitted-by {
+      font-size: 10px;
+      color: var(--dim);
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">AI Builder Automation Portfolio</div>
+      <h1>Automation Roadmap</h1>
+      <p class="subtitle">Sprint 1 · AI Builder L2</p>
+      <p class="date">April 28, 2026</p>
+    </div>
+    <div class="header-right">
+      <div class="stat-pill">
+        <span class="stat-num" id="count-suggested">0</span>
+        <span class="stat-label">Suggested</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="count-to-build">0</span>
+        <span class="stat-label">To Build</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="count-in-progress">0</span>
+        <span class="stat-label">In Progress</span>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-num" id="count-done">0</span>
+        <span class="stat-label">Done</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ BOARD ══ -->
+  <div class="board-toolbar">
+    <button class="btn-reset" id="btn-reset">Refresh</button>
+  </div>
+
+  <div class="board" id="board">
+
+    <div class="column column-suggested" id="col-suggested">
+      <div class="column-header">
+        <div class="column-title-group">
+          <div class="column-dot"></div>
+          <span class="column-title">Suggested</span>
+        </div>
+        <span class="column-count" id="badge-suggested">0</span>
+      </div>
+      <div class="card-list" id="list-suggested" data-col="suggested"></div>
+    </div>
+
+    <div class="column column-to-build" id="col-to-build">
+      <div class="column-header">
+        <div class="column-title-group">
+          <div class="column-dot"></div>
+          <span class="column-title">To Build</span>
+        </div>
+        <span class="column-count" id="badge-to-build">0</span>
+      </div>
+      <div class="card-list" id="list-to-build" data-col="to-build"></div>
+    </div>
+
+    <div class="column column-in-progress" id="col-in-progress">
+      <div class="column-header">
+        <div class="column-title-group">
+          <div class="column-dot"></div>
+          <span class="column-title">In Progress</span>
+        </div>
+        <span class="column-count" id="badge-in-progress">0</span>
+      </div>
+      <div class="card-list" id="list-in-progress" data-col="in-progress"></div>
+    </div>
+
+    <div class="column column-done" id="col-done">
+      <div class="column-header">
+        <div class="column-title-group">
+          <div class="column-dot"></div>
+          <span class="column-title">Done</span>
+        </div>
+        <span class="column-count" id="badge-done">0</span>
+      </div>
+      <div class="card-list" id="list-done" data-col="done"></div>
+    </div>
+
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <div class="footer">
+    Automation Roadmap · AI Builder L2 · April 28, 2026 &nbsp;|&nbsp;
+    <a href="ai-builder-plan.html">Full Plan →</a>
+  </div>
+
+</div>
+
+<script>
+  /* ─────────────────────────────────────────────
+     Notion-backed Kanban — data via /api/roadmap
+  ───────────────────────────────────────────── */
+
+  const COLS = ['suggested', 'to-build', 'in-progress', 'done'];
+
+  const COL_TO_STATUS = {
+    'suggested':   'Suggested',
+    'to-build':    'To Build',
+    'in-progress': 'In Progress',
+    'done':        'Done',
+  };
+  const STATUS_TO_COL = Object.fromEntries(
+    Object.entries(COL_TO_STATUS).map(([k, v]) => [v, k])
+  );
+
+  const SPRING = 'cubic-bezier(0.34, 1.56, 0.64, 1)';
+  const EASE   = 'cubic-bezier(0.2,  0,    0,    1)';
+
+  /* ── State (all declared before initBoard() call to avoid TDZ) ── */
+  let   dragState = null;
+  const flipAnims = new Map();
+
+  /* ───────────────────── API layer ───────────────────── */
+  async function fetchRoadmap() {
+    const res = await fetch('/api/roadmap');
+    if (!res.ok) throw new Error(`GET /api/roadmap → ${res.status}`);
+    return res.json();
+  }
+
+  function patchStatus(notionId, colId) {
+    const status = COL_TO_STATUS[colId];
+    if (!notionId || !status) return;
+    fetch('/api/roadmap', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: notionId, status }),
+    }).then(r => { if (!r.ok) r.text().then(t => console.error('PATCH failed:', r.status, t)); })
+      .catch(err => console.error('PATCH error:', err));
+  }
+
+  /* ───────────────────── Card factory ───────────────────── */
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function buildCard(data) {
+    const el       = document.createElement('div');
+    el.className   = 'card';
+    el.dataset.notionId = data.id;
+    const pri      = (data.priority || 'Low').toLowerCase();
+    const byLine   = data.submittedBy
+      ? `<span class="card-submitted-by">${escHtml(data.submittedBy)}</span>` : '';
+    el.innerHTML = `
+      <div class="card-name">${escHtml(data.name)}</div>
+      ${data.description ? `<div class="card-desc">${escHtml(data.description)}</div>` : ''}
+      <div class="card-footer">
+        <span class="priority priority-${pri}">${escHtml(data.priority || 'Low')}</span>
+        ${byLine}
+      </div>`;
+    el.addEventListener('pointerdown', onPointerDown);
+    el.addEventListener('contextmenu', onContextMenu);
+    return el;
+  }
+
+  /* ───────────────────── Render ───────────────────── */
+  function render(cards) {
+    COLS.forEach(col => { document.getElementById(`list-${col}`).innerHTML = ''; });
+    cards.forEach(card => {
+      const col  = STATUS_TO_COL[card.status] || 'to-build';
+      const list = document.getElementById(`list-${col}`);
+      if (list) list.appendChild(buildCard(card));
+    });
+    updateCounts();
+  }
+
+  function updateCounts() {
+    COLS.forEach(col => {
+      const n = document.getElementById(`list-${col}`).children.length;
+      document.getElementById(`badge-${col}`).textContent = n;
+      document.getElementById(`count-${col}`).textContent = n;
+    });
+  }
+
+  /* ───────────────────── Init ───────────────────── */
+  async function initBoard() {
+    COLS.forEach(col => {
+      document.getElementById(`list-${col}`).innerHTML =
+        '<div class="card-loading">Loading…</div>';
+    });
+    /* clear any previous error */
+    document.getElementById('board-error')?.remove();
+
+    try {
+      const cards = await fetchRoadmap();
+      render(cards);
+    } catch (err) {
+      console.error(err);
+      COLS.forEach(col => { document.getElementById(`list-${col}`).innerHTML = ''; });
+      const msg = document.createElement('p');
+      msg.id        = 'board-error';
+      msg.className = 'board-error';
+      msg.textContent = '⚠ Could not reach /api/roadmap. Is vercel dev running?';
+      document.getElementById('board').insertAdjacentElement('beforebegin', msg);
+    }
+  }
+
+  /* ───────────────────── Click: advance / retreat ───────────────────── */
+  function getCardCol(card) {
+    const list = card.closest('[data-col]');
+    return list ? list.dataset.col : null;
+  }
+
+  function advanceCard(card) {
+    const idx = COLS.indexOf(getCardCol(card));
+    if (idx < 0 || idx >= COLS.length - 1) return;
+    const target = COLS[idx + 1];
+    flipCards(() => document.getElementById(`list-${target}`).appendChild(card));
+    patchStatus(card.dataset.notionId, target);
+    updateCounts();
+  }
+
+  function retreatCard(card) {
+    const idx = COLS.indexOf(getCardCol(card));
+    if (idx <= 0) return;
+    const target = COLS[idx - 1];
+    flipCards(() => document.getElementById(`list-${target}`).appendChild(card));
+    patchStatus(card.dataset.notionId, target);
+    updateCounts();
+  }
+
+  function onContextMenu(e) {
+    e.preventDefault();
+    retreatCard(e.currentTarget);
+  }
+
+  /* ───────────────────── FLIP helper ───────────────────── */
+  function flipCards(domChange) {
+    flipAnims.forEach(anim => { try { anim.cancel(); } catch (_) {} });
+    flipAnims.clear();
+
+    const cards  = [...document.querySelectorAll('.card:not(.drag-source)')];
+    const before = new Map();
+    cards.forEach(c => before.set(c, c.getBoundingClientRect()));
+
+    domChange();
+
+    cards.forEach(c => {
+      const b = before.get(c); if (!b) return;
+      const a = c.getBoundingClientRect();
+      const dy = b.top - a.top, dx = b.left - a.left;
+      if (Math.abs(dy) < 0.5 && Math.abs(dx) < 0.5) return;
+      const anim = c.animate(
+        [{ transform:`translate(${dx}px,${dy}px)` }, { transform:'translate(0,0)' }],
+        { duration: 170, easing: EASE }
+      );
+      flipAnims.set(c, anim);
+      anim.onfinish = () => flipAnims.delete(c);
+      anim.oncancel = () => flipAnims.delete(c);
+    });
+  }
+
+  /* ───────────────────── Pointer drag ───────────────────── */
+  function onPointerDown(e) {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    const card = e.currentTarget;
+    const rect = card.getBoundingClientRect();
+    dragState = {
+      card,
+      startX: e.clientX,   startY: e.clientY,
+      offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top,
+      ghostBaseX: rect.left, ghostBaseY: rect.top,
+      ghostCurX:  rect.left, ghostCurY:  rect.top,
+      ghostEl: null, active: false, lastTarget: null,
+    };
+    document.addEventListener('pointermove',   onPointerMove);
+    document.addEventListener('pointerup',     onPointerUp);
+    document.addEventListener('pointercancel', onPointerCancel);
+    document.addEventListener('keydown',       onKeyDown);
+  }
+
+  function activateDrag() {
+    const { card, ghostBaseX, ghostBaseY } = dragState;
+    const rect  = card.getBoundingClientRect();
+    const ghost = card.cloneNode(true);
+    ghost.className = 'card';
+    ghost.style.cssText = `
+      position:fixed;top:0;left:0;width:${rect.width}px;
+      margin:0;padding:14px 16px;pointer-events:none;z-index:9999;
+      transform-origin:top left;will-change:transform;
+      transform:translate(${ghostBaseX}px,${ghostBaseY}px) rotate(2deg) scale(1.03);
+      box-shadow:0 16px 40px rgba(0,0,0,0.22),0 2px 8px rgba(139,21,56,0.14);
+      border:1px solid rgba(139,21,56,0.32);border-radius:10px;background:#fff;`;
+    document.body.appendChild(ghost);
+    dragState.ghostEl = ghost;
+    card.classList.add('drag-source');
+    dragState.lastTarget = { list: card.parentNode, before: card.nextElementSibling };
+  }
+
+  function onPointerMove(e) {
+    if (!dragState) return;
+    if (!dragState.active) {
+      if (Math.hypot(e.clientX - dragState.startX, e.clientY - dragState.startY) < 5) return;
+      dragState.active = true;
+      activateDrag();
+    }
+    dragState.ghostCurX = e.clientX - dragState.offsetX;
+    dragState.ghostCurY = e.clientY - dragState.offsetY;
+    const tx = dragState.ghostCurX - dragState.ghostBaseX;
+    const ty = dragState.ghostCurY - dragState.ghostBaseY;
+    dragState.ghostEl.style.transform = `translate(${tx}px,${ty}px) rotate(2deg) scale(1.03)`;
+    updateDropTarget(e.clientX, e.clientY);
+  }
+
+  function updateDropTarget(cx, cy) {
+    let targetList = null;
+    for (const col of COLS) {
+      const r = document.getElementById(`col-${col}`).getBoundingClientRect();
+      if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) {
+        targetList = document.getElementById(`list-${col}`); break;
+      }
+    }
+    document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
+    if (targetList) targetList.classList.add('drag-over');
+    if (!targetList) return;
+
+    const card = dragState.card;
+    const sibs = [...targetList.querySelectorAll('.card')].filter(c => c !== card);
+    let insertBefore = null;
+    for (const sib of sibs) {
+      const r = sib.getBoundingClientRect();
+      if (cy < r.top + r.height / 2) { insertBefore = sib; break; }
+    }
+    const last = dragState.lastTarget;
+    if (last && last.list === targetList && last.before === insertBefore) return;
+    dragState.lastTarget = { list: targetList, before: insertBefore };
+    flipCards(() => {
+      insertBefore ? targetList.insertBefore(card, insertBefore) : targetList.appendChild(card);
+    });
+  }
+
+  function onPointerUp(e) {
+    removePointerListeners();
+    if (!dragState) return;
+    const { card, ghostEl, ghostBaseX, ghostBaseY, ghostCurX, ghostCurY, active } = dragState;
+    dragState = null;
+    document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
+
+    if (!active) { advanceCard(card); return; }
+
+    const targetRect = card.getBoundingClientRect();
+    const dropAnim = ghostEl.animate([
+      { transform:`translate(${ghostCurX-ghostBaseX}px,${ghostCurY-ghostBaseY}px) rotate(2deg) scale(1.03)`,
+        boxShadow:'0 16px 40px rgba(0,0,0,0.22),0 2px 8px rgba(139,21,56,0.14)' },
+      { transform:`translate(${targetRect.left-ghostBaseX}px,${targetRect.top-ghostBaseY}px) rotate(0deg) scale(1)`,
+        boxShadow:'0 1px 4px rgba(0,0,0,0.04)' },
+    ], { duration: 280, easing: SPRING, fill: 'forwards' });
+
+    dropAnim.onfinish = () => {
+      ghostEl.remove();
+      card.classList.remove('drag-source');
+      card.animate([{ transform:'scale(1.05)' }, { transform:'scale(1)' }],
+                   { duration: 220, easing: SPRING });
+      patchStatus(card.dataset.notionId, getCardCol(card));
+      updateCounts();
+    };
+  }
+
+  function onPointerCancel() {
+    removePointerListeners();
+    if (!dragState) return;
+    const { card, ghostEl } = dragState; dragState = null;
+    document.querySelectorAll('.card-list').forEach(l => l.classList.remove('drag-over'));
+    if (ghostEl) ghostEl.remove();
+    card.classList.remove('drag-source');
+    updateCounts();
+  }
+
+  function onKeyDown(e) { if (e.key === 'Escape') onPointerCancel(); }
+
+  function removePointerListeners() {
+    document.removeEventListener('pointermove',   onPointerMove);
+    document.removeEventListener('pointerup',     onPointerUp);
+    document.removeEventListener('pointercancel', onPointerCancel);
+    document.removeEventListener('keydown',       onKeyDown);
+  }
+
+  /* ───────────────────── Refresh button ───────────────────── */
+  document.getElementById('btn-reset').addEventListener('click', () => initBoard());
+
+  /* ───────────────────── Boot ───────────────────── */
+  initBoard();
+</script>
+</body>
+</html>

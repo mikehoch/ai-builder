@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Time Audit — Mike Hochleutner</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6c8ef5;
+      --accent2: #a78bfa;
+      --green: #34d399;
+      --yellow: #fbbf24;
+      --red: #f87171;
+      --orange: #fb923c;
+      --text: #e2e8f0;
+      --muted: #8892b0;
+      --dim: #4a5568;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    a { color: var(--accent); text-decoration: none; }
+
+    /* Layout */
+    .container { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* Header */
+    .header {
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 32px;
+      margin-bottom: 48px;
+    }
+    .header-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .header h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .header .goal {
+      font-size: 16px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+    .header .goal strong { color: var(--text); }
+    .header .date { font-size: 13px; color: var(--dim); margin-top: 8px; }
+
+    /* Alert banner */
+    .alert {
+      background: rgba(248, 113, 113, 0.08);
+      border: 1px solid rgba(248, 113, 113, 0.3);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 40px;
+      font-size: 13px;
+      color: #fca5a5;
+    }
+    .alert strong { color: var(--red); }
+
+    /* Section */
+    .section { margin-bottom: 56px; }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .section-header .section-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--dim);
+    }
+
+    /* Card grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    @media (max-width: 700px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.2;
+    }
+    .card-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .card-note { font-size: 13px; color: var(--text); margin-top: 10px; }
+
+    /* Bar chart rows */
+    .bar-list { display: flex; flex-direction: column; gap: 10px; }
+    .bar-row { display: flex; align-items: center; gap: 12px; }
+    .bar-label { width: 180px; font-size: 13px; color: var(--text); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-label.wide { width: 240px; }
+    .bar-track { flex: 1; background: var(--surface2); border-radius: 3px; height: 8px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; }
+    .bar-val { width: 60px; text-align: right; font-size: 12px; color: var(--muted); flex-shrink: 0; }
+
+    /* Color classes */
+    .fill-red    { background: var(--red); }
+    .fill-orange { background: var(--orange); }
+    .fill-yellow { background: var(--yellow); }
+    .fill-green  { background: var(--green); }
+    .fill-accent { background: var(--accent); }
+    .fill-accent2{ background: var(--accent2); }
+    .fill-dim    { background: var(--dim); }
+    .fill-muted  { background: var(--muted); }
+
+    /* Table */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      text-align: left;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--muted);
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td {
+      padding: 10px 12px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--surface2); }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    .tag-red    { background: rgba(248,113,113,0.15); color: var(--red); }
+    .tag-orange { background: rgba(251,146,60,0.15); color: var(--orange); }
+    .tag-yellow { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .tag-green  { background: rgba(52,211,153,0.15); color: var(--green); }
+    .tag-blue   { background: rgba(108,142,245,0.15); color: var(--accent); }
+    .tag-purple { background: rgba(167,139,250,0.15); color: var(--accent2); }
+    .tag-dim    { background: rgba(74,85,104,0.2); color: var(--muted); }
+
+    /* Observation cards */
+    .obs-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: 0 10px 10px 0;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+    }
+    .obs-card.warn { border-left-color: var(--red); }
+    .obs-card.caution { border-left-color: var(--yellow); }
+    .obs-card.good { border-left-color: var(--green); }
+    .obs-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+    .obs-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* Diagnostic metric */
+    .diag-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 600px) { .diag-grid { grid-template-columns: 1fr; } }
+    .diag-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .diag-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .diag-value { font-size: 22px; font-weight: 700; color: #fff; }
+    .diag-sub { font-size: 13px; color: var(--muted); margin-top: 6px; }
+    .diag-note { font-size: 12px; color: var(--dim); margin-top: 8px; font-style: italic; }
+
+    /* Automation opportunity cards */
+    .auto-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 18px;
+    }
+    .auto-card:hover { border-color: var(--accent); }
+    .auto-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+    .auto-rank { font-size: 11px; font-weight: 700; color: var(--dim); letter-spacing: 1px; flex-shrink: 0; margin-top: 2px; }
+    .auto-outcome { font-size: 17px; font-weight: 700; color: #fff; line-height: 1.3; }
+    .auto-meta { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+    .auto-section { margin-bottom: 12px; }
+    .auto-section-label { font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
+    .auto-section-body { font-size: 13px; color: var(--muted); }
+    .hours-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(52,211,153,0.1);
+      border: 1px solid rgba(52,211,153,0.25);
+      border-radius: 20px;
+      padding: 3px 12px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--green);
+    }
+
+    /* Goal alignment */
+    .goal-row {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 12px;
+      background: var(--surface);
+    }
+    .goal-row-header { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .goal-indicator { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .goal-name { font-size: 14px; font-weight: 700; color: #fff; }
+    .goal-body { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* Data sources */
+    .source-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .source-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .source-name { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .source-range { font-size: 12px; color: var(--muted); }
+    .source-status { font-size: 11px; font-weight: 600; margin-top: 6px; }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+    /* Footer */
+    .footer { text-align: center; font-size: 12px; color: var(--dim); margin-top: 64px; padding-top: 24px; border-top: 1px solid var(--border); }
+
+    /* Draft watermark */
+    .draft-note { font-size: 11px; color: var(--dim); font-style: italic; margin-left: 8px; }
+
+    .text-red    { color: var(--red); }
+    .text-orange { color: var(--orange); }
+    .text-yellow { color: var(--yellow); }
+    .text-green  { color: var(--green); }
+    .text-accent { color: var(--accent); }
+    .text-muted  { color: var(--muted); }
+    .mt-8  { margin-top: 8px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-24 { margin-top: 24px; }
+    .mb-8  { margin-bottom: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-label">AI Builder Automation Portfolio</div>
+    <h1>Time Audit — Mike Hochleutner</h1>
+    <p class="goal"><strong>#1 Goal:</strong> Build a reliable content engine and full-funnel lead system for MBA admissions coaching</p>
+    <p class="date">Generated April 21, 2026 &nbsp;·&nbsp; Data window: April 1–21, 2026 (15 weekdays)</p>
+  </div>
+
+  <!-- Data gaps alert -->
+  <div class="alert">
+    <strong>Missing data:</strong> Mac app usage (knowledgeC.db requires Full Disk Access — enable in System Settings › Privacy &amp; Security › Full Disk Access, then re-run). Slack not connected (claude.ai › Settings › Connectors, ~2 min). Analysis below uses Chrome history, Google Calendar, and Gmail.
+  </div>
+
+
+  <!-- ===================== SECTION 1: HOW I SPEND MY TIME ===================== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>How I Actually Spend My Time</h2>
+      <span class="section-tag">Reality check</span>
+    </div>
+
+    <!-- Browser categories -->
+    <div class="card mb-8" style="margin-bottom:20px;">
+      <div class="card-label">Browser Visits by Category — 2,122 total work-hours visits</div>
+      <div class="bar-list mt-8">
+        <div class="bar-row">
+          <div class="bar-label wide text-red"><strong>News &amp; media</strong></div>
+          <div class="bar-track"><div class="bar-fill fill-red" style="width:30%"></div></div>
+          <div class="bar-val text-red">634 (30%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide">Docs &amp; content creation</div>
+          <div class="bar-track"><div class="bar-fill fill-green" style="width:16.5%"></div></div>
+          <div class="bar-val">350 (16.5%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide">Calendar &amp; scheduling</div>
+          <div class="bar-track"><div class="bar-fill fill-accent" style="width:10%"></div></div>
+          <div class="bar-val">212 (10%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide">Google tools (search, meet, mail)</div>
+          <div class="bar-track"><div class="bar-fill fill-accent2" style="width:7.2%"></div></div>
+          <div class="bar-val">153 (7.2%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide">CRM &amp; Leland platform</div>
+          <div class="bar-track"><div class="bar-fill fill-yellow" style="width:6.3%"></div></div>
+          <div class="bar-val">133 (6.3%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide text-orange">Shopping &amp; finance</div>
+          <div class="bar-track"><div class="bar-fill fill-orange" style="width:4.8%"></div></div>
+          <div class="bar-val text-orange">101 (4.8%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide">Social media</div>
+          <div class="bar-track"><div class="bar-fill fill-muted" style="width:3%"></div></div>
+          <div class="bar-val">63 (3%)</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label wide">AI tools &amp; mbai.app</div>
+          <div class="bar-track"><div class="bar-fill fill-dim" style="width:0.75%"></div></div>
+          <div class="bar-val">16 (0.75%)</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top sites table -->
+    <table class="data-table" style="background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border);margin-bottom:32px;">
+      <thead>
+        <tr>
+          <th>Site</th>
+          <th>Visits</th>
+          <th>Category</th>
+          <th>Work alignment</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>drudgereport.com</strong></td><td>391</td><td><span class="tag tag-red">News</span></td><td class="text-red">None — #1 time drain</td></tr>
+        <tr><td>calendar.google.com</td><td>188</td><td><span class="tag tag-blue">Calendar</span></td><td>High — scheduling is core</td></tr>
+        <tr><td>drive.google.com</td><td>160</td><td><span class="tag tag-green">Content</span></td><td>High — docs &amp; coaching assets</td></tr>
+        <tr><td>gamma.app</td><td>121</td><td><span class="tag tag-green">Content</span></td><td>High — presentation creation</td></tr>
+        <tr><td>google.com</td><td>95</td><td><span class="tag tag-dim">Search</span></td><td>Medium</td></tr>
+        <tr><td><strong>mediaite.com</strong></td><td>90</td><td><span class="tag tag-red">News</span></td><td class="text-red">None — news drain</td></tr>
+        <tr><td>coach.joinleland.com</td><td>85</td><td><span class="tag tag-yellow">CRM/Ops</span></td><td>High — client management</td></tr>
+        <tr><td><strong>amazon.com</strong></td><td>70</td><td><span class="tag tag-orange">Shopping</span></td><td class="text-orange">None during work hours</td></tr>
+        <tr><td>docs.google.com</td><td>69</td><td><span class="tag tag-green">Content</span></td><td>High — client essays, docs</td></tr>
+        <tr><td><strong>politico.com</strong></td><td>60</td><td><span class="tag tag-red">News</span></td><td class="text-red">None — news drain</td></tr>
+        <tr><td>linkedin.com</td><td>39</td><td><span class="tag tag-purple">Social</span></td><td>Medium — low for content goal</td></tr>
+        <tr><td>youtube.com</td><td>31</td><td><span class="tag tag-dim">Other</span></td><td>Low</td></tr>
+        <tr><td>card.discover.com</td><td>31</td><td><span class="tag tag-orange">Finance</span></td><td class="text-orange">None</td></tr>
+        <tr><td><strong>foxnews.com</strong></td><td>29</td><td><span class="tag tag-red">News</span></td><td class="text-red">None</td></tr>
+        <tr><td>nytimes.com</td><td>27</td><td><span class="tag tag-red">News</span></td><td class="text-red">None</td></tr>
+        <tr><td>msn.com</td><td>24</td><td><span class="tag tag-red">News</span></td><td class="text-red">None</td></tr>
+        <tr><td>mbai.app</td><td>8</td><td><span class="tag tag-blue">Product</span></td><td class="text-orange">Should be 10x this</td></tr>
+      </tbody>
+    </table>
+
+    <!-- Meeting breakdown -->
+    <div class="section-header">
+      <h2>Calendar Breakdown</h2>
+      <span class="section-tag">14 weekdays · 105 work events</span>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-label">Coaching sessions (Leland)</div>
+        <div class="card-value text-green">~9.5 hrs</div>
+        <div class="card-sub">Alessandro ×3, Nathaniel ×2, Shonak, Nicolas, Howard, Caoimhe Zoe, Taofik</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Intro calls (15-min prospects)</div>
+        <div class="card-value">14 calls · 3.5 hrs</div>
+        <div class="card-sub">Sky, Nauryzbay, Nishita, Mahish, Cynthia, Robert, Evgeniya, Konrad, Louis, Ignacio, Taofik, Pedro, James + 1 more</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Fitness blocks (recurring)</div>
+        <div class="card-value text-yellow">~27 hrs</div>
+        <div class="card-sub">Sweat @9:15 (7×2h), Toned @9:15 (4×2h), Sweat 45 (3×1h), Power Yoga (2×1h)</div>
+      </div>
+      <div class="card">
+        <div class="card-label">Hold: Plan, Write</div>
+        <div class="card-value">11× · 33 hrs blocked</div>
+        <div class="card-sub">3hr daily afternoon hold — recurring. Actual fill rate unknown but structurally sound.</div>
+      </div>
+    </div>
+
+    <!-- Events/webinars attended -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:24px;">
+      <div class="card-label" style="margin-bottom:12px;">Events &amp; learning attended</div>
+      <table class="data-table">
+        <thead><tr><th>Date</th><th>Event</th><th>Type</th><th>Duration</th></tr></thead>
+        <tbody>
+          <tr><td>Apr 2</td><td>Crafting Powerful Narratives for MBA Applications (Leland)</td><td><span class="tag tag-purple">Content/Learning</span></td><td>45 min</td></tr>
+          <tr><td>Apr 3</td><td>Stanford Invitational (Nolan's track meet)</td><td><span class="tag tag-dim">Personal</span></td><td>Full day</td></tr>
+          <tr><td>Apr 7</td><td>5 Tips for MBA Applicants from Ex-Admissions Director</td><td><span class="tag tag-blue">Content/Learning</span></td><td>60 min</td></tr>
+          <tr><td>Apr 8</td><td>Drive to Joshua Tree</td><td><span class="tag tag-dim">Personal</span></td><td>Full day</td></tr>
+          <tr><td>Apr 9</td><td>Your First LinkedIn Client in 30 Days (webinar)</td><td><span class="tag tag-green">Content strategy</span></td><td>60 min</td></tr>
+          <tr><td>Apr 15</td><td>Stanford Leadership Conference</td><td><span class="tag tag-blue">Networking</span></td><td>Full day</td></tr>
+          <tr><td>Apr 21</td><td>AI Builder Program L2 (first session, Leland)</td><td><span class="tag tag-green">Learning/AI</span></td><td>Ongoing</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Recurring meetings -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:32px;">
+      <div class="card-label" style="margin-bottom:12px;">Recurring patterns (2+ appearances)</div>
+      <div class="bar-list">
+        <div class="bar-row">
+          <div class="bar-label">Drive Nolan (daily)</div>
+          <div class="bar-track"><div class="bar-fill fill-dim" style="width:85%"></div></div>
+          <div class="bar-val">11× · 5.5h</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Hold: Plan, Write</div>
+          <div class="bar-track"><div class="bar-fill fill-accent" style="width:85%"></div></div>
+          <div class="bar-val">11× · 33h</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Sweat @9:15</div>
+          <div class="bar-track"><div class="bar-fill fill-yellow" style="width:54%"></div></div>
+          <div class="bar-val">7× · 14h</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Alessandro coaching</div>
+          <div class="bar-track"><div class="bar-fill fill-green" style="width:23%"></div></div>
+          <div class="bar-val">3× · ~3h</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-label">Nathaniel coaching</div>
+          <div class="bar-track"><div class="bar-fill fill-green" style="width:15%"></div></div>
+          <div class="bar-val">2× · ~2h</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Email patterns -->
+    <div class="section-header">
+      <h2>Email Patterns</h2>
+      <span class="section-tag">30-day window</span>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px;">
+      <div class="card">
+        <div class="card-label">What you send repeatedly</div>
+        <div class="card-note">
+          <p>• <strong>Intro call confirmations</strong> — automated via Calendly, but still reviewed/managed</p>
+          <p class="mt-8">• <strong>Brief client wins responses</strong> — "Congrats, well deserved!" (Rishav → Stanford, Fred → admitted)</p>
+          <p class="mt-8">• <strong>Family logistics</strong> — Nolan's track, school, art exhibit</p>
+          <p class="mt-8">• <strong>Leland platform issues</strong> — newsletter bugs, registration switches (manual friction)</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">What fields your inbox</div>
+        <div class="card-note">
+          <p>• <strong>Daily Leland Digest</strong> — automated, arrives 8pm PT daily</p>
+          <p class="mt-8">• <strong>LinkedIn InMails from prospects</strong> — Nathan Shaver (MSx/EMBA), others — not always responded to quickly</p>
+          <p class="mt-8">• <strong>Leland platform emails</strong> — coach newsletters, training invites, milestone notifications</p>
+          <p class="mt-8">• <strong>Google Doc collaboration</strong> — Nathaniel's Harvard essay comments</p>
+          <p class="mt-8">• <strong>Misc personal</strong> — Zelle dispute, school, family</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end section 1 -->
+
+  <hr class="divider" />
+
+  <!-- ===================== SECTION 2: KEY DIAGNOSTICS ===================== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Key Diagnostics</h2>
+      <span class="section-tag">What the data actually shows</span>
+    </div>
+
+    <div class="diag-grid" style="margin-bottom:32px;">
+      <div class="diag-card">
+        <div class="diag-label">Browser switches / day</div>
+        <div class="diag-value text-red">~141</div>
+        <div class="diag-sub">2,122 URL visits ÷ 15 weekdays. Every tab change = a context switch signal.</div>
+        <div class="diag-note">Worst single stretch: news browsing across 5+ outlets in same session</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-label">Meeting load vs. deep work</div>
+        <div class="diag-value">Low meetings · High blocks</div>
+        <div class="diag-sub">~13 hrs client work + 33 hrs blocked for planning/writing. Structure is there.</div>
+        <div class="diag-note">Unknown: are the "Hold: Plan, Write" blocks actually being used for content?</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-label">Reactive vs. proactive split</div>
+        <div class="diag-value text-yellow">Heavily reactive</div>
+        <div class="diag-sub">634 news visits, 14 intro calls managed, Leland digest read and processed daily.</div>
+        <div class="diag-note">Proactive output: gamma.app (121 visits) and some doc creation visible</div>
+      </div>
+      <div class="diag-card">
+        <div class="diag-label">Fitness as calendar anchor</div>
+        <div class="diag-value text-yellow">~27 hrs / 2 wks</div>
+        <div class="diag-sub">9am–11am locked Monday–Friday. Effectively eliminates prime morning deep work.</div>
+        <div class="diag-note">Not inherently bad — but it's the first thing to move if content output needs to rise</div>
+      </div>
+    </div>
+
+    <!-- Top 3 time drains -->
+    <div class="card-label mb-8" style="margin-bottom:12px;">Top 3 Time Drains</div>
+
+    <div class="obs-card warn">
+      <div class="obs-title">#1 — News consumption (~2–3 hours/day)</div>
+      <div class="obs-body">drudgereport.com alone: 391 visits in 15 weekdays = 26 visits/day. Add mediaite.com (90), politico.com (60), foxnews.com (29), nytimes.com (27), msn.com (24) = <strong>634 total news visits</strong>. This is 30% of all browsing. No content strategy output comes from this. It is pure pull-to-refresh behavior during hours that should be building the engine.</div>
+    </div>
+
+    <div class="obs-card caution">
+      <div class="obs-title">#2 — Intro call overhead (14 calls in 2 weeks, scattered timing)</div>
+      <div class="obs-body">14 inbound intro calls (15 min each) = 3.5 hours of meeting time, but each also fragments surrounding work time. Calls appear at 8:15am, 9am, 11:15am, 1:30pm, 2pm (multiple), 4:30pm, 5pm, 5:15pm, 5:30pm — no batching. Each requires context-loading, calendly management, and a follow-up action that mostly falls on you manually.</div>
+    </div>
+
+    <div class="obs-card caution">
+      <div class="obs-title">#3 — Family &amp; logistics overhead (untracked but present)</div>
+      <div class="obs-body">Drive Nolan (11× in 2 weeks = 5.5 hrs calendar, plus actual drive time), track meet coordination emails, Zelle payment dispute thread, art exhibit response, school logistics. This is life, not a flaw — but it's consistently visible in both email and calendar and is not being delegated anywhere.</div>
+    </div>
+
+    <!-- Sharp observations -->
+    <div class="section-header mt-24" style="margin-top:32px;">
+      <h2>Sharp Observations</h2>
+    </div>
+
+    <div class="obs-card">
+      <div class="obs-title">Gamma is being used — but LinkedIn isn't</div>
+      <div class="obs-body">gamma.app at 121 visits suggests real content creation happening. But linkedin.com is only 39 visits across 15 weekdays — 2.6 per day, mostly browsing. There's no evidence of publishing cadence in the data. The bottleneck isn't creation — it's the gap between Gamma output and LinkedIn distribution.</div>
+    </div>
+
+    <div class="obs-card">
+      <div class="obs-title">mbai.app visits: 8. Your own product, lowest in the list.</div>
+      <div class="obs-body">mbai.app appears in the data just 8 times. coach.joinleland.com appears 85 times. You're spending 10× more time on a platform you coach through than the platform you own. The product isn't being used in your daily workflow as a demonstration, test, or sales tool — which is the most credible marketing for it.</div>
+    </div>
+
+    <div class="obs-card good">
+      <div class="obs-title">The structural blocks are in place — execution is the gap</div>
+      <div class="obs-body">"Hold: Plan, Write" appears 11 times, 3 hours each = 33 hrs of protected afternoon time. The calendar architecture is right. The fitness/drive schedule is consistent. You have structure. What's leaking it is news browsing and fragmented intro call timing — not calendar design.</div>
+    </div>
+
+  </div><!-- end section 2 -->
+
+  <hr class="divider" />
+
+  <!-- ===================== SECTION 3: GOAL ALIGNMENT ===================== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Goal Alignment</h2>
+      <span class="section-tag">CLAUDE.md goals vs. actual time</span>
+    </div>
+
+    <div class="goal-row">
+      <div class="goal-row-header">
+        <div class="goal-indicator" style="background:var(--yellow)"></div>
+        <div class="goal-name">Goal 1: Build a reliable, consistent content engine</div>
+      </div>
+      <div class="goal-body">
+        <strong style="color:var(--yellow)">Partial signal.</strong> Gamma (121 visits) and Drive/Docs (229 visits) suggest content is being touched. You attended a "LinkedIn client in 30 days" webinar — you're researching the approach. But there's no publishing cadence visible in LinkedIn activity (39 visits, no posts generated). The engine is being designed, not yet running.
+      </div>
+    </div>
+
+    <div class="goal-row">
+      <div class="goal-row-header">
+        <div class="goal-indicator" style="background:var(--red)"></div>
+        <div class="goal-name">Goal 2: Warm lead funnel — content engagement → clients</div>
+      </div>
+      <div class="goal-body">
+        <strong style="color:var(--red)">Not visible yet.</strong> 14 intro calls are coming in via Leland (inbound), which is good — but these are platform-generated, not content-driven. No nurture sequence, no email follow-up automation, and LinkedIn InMails from high-intent prospects (Nathan Shaver: MSx/EMBA) are sitting in inbox without quick response. The funnel isn't connected.
+      </div>
+    </div>
+
+    <div class="goal-row">
+      <div class="goal-row-header">
+        <div class="goal-indicator" style="background:var(--green)"></div>
+        <div class="goal-name">Goal 3: Client communications — prioritized, summarized, next actions</div>
+      </div>
+      <div class="goal-body">
+        <strong style="color:var(--green)">Best-performing goal.</strong> The Leland Digest (daily) gives you a structured client summary. You're responding to client wins quickly (Rishav, Fred). Alessandro and Nathaniel have regular session cadence. This is working — opportunity is to speed up response on LinkedIn InMails and intro call follow-up.
+      </div>
+    </div>
+
+    <div class="goal-row">
+      <div class="goal-row-header">
+        <div class="goal-indicator" style="background:var(--orange)"></div>
+        <div class="goal-name">Goal 4: Grow mbai.app — use, promote, automate</div>
+      </div>
+      <div class="goal-body">
+        <strong style="color:var(--orange)">Absent from workflow.</strong> 8 browser visits to mbai.app in 15 weekdays. No evidence of it appearing in client sessions, coaching docs, or content. If AI Builder L2 (just started today) builds on this, that's the right catalyst — but the product needs to be actively used as a demo in coaching to become a credible marketing tool.
+      </div>
+    </div>
+
+    <div class="card mt-16" style="margin-top:20px;">
+      <div class="card-label">What should be happening but isn't in the data</div>
+      <div class="card-note">
+        <p>• <strong>LinkedIn posts going live</strong> — creation is happening (Gamma), but no publishing visible</p>
+        <p class="mt-8">• <strong>Content → lead nurture automation</strong> — no email sequences, no automated follow-ups to InMails or intro calls</p>
+        <p class="mt-8">• <strong>mbai.app integration into coaching sessions</strong> — not appearing in calendar notes or Google Docs</p>
+        <p class="mt-8">• <strong>HubSpot CRM activity</strong> — HubSpot links visible (d2fhrl04.na1.hubspotlinks.com) but no evidence of pipeline being actively managed</p>
+      </div>
+    </div>
+
+  </div><!-- end section 3 -->
+
+  <hr class="divider" />
+
+  <!-- ===================== SECTION 4: AUTOMATION OPPORTUNITIES ===================== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Automation Opportunities</h2>
+      <span class="section-tag">Ranked by impact × goal alignment &nbsp;·&nbsp; <span class="draft-note">DRAFT</span></span>
+    </div>
+
+    <!-- #1 -->
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>
+          <div class="auto-rank">#1 — HIGHEST IMPACT</div>
+          <div class="auto-outcome">News consumption doesn't eat your mornings anymore</div>
+        </div>
+        <div class="hours-pill">3–4 hrs/week reclaimed</div>
+      </div>
+      <div class="auto-meta">
+        <span class="tag tag-green">Quick win (under 2 hrs)</span>
+        <span class="tag tag-blue">Behavior change + tooling</span>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What's happening today</div>
+        <div class="auto-section-body">drudgereport.com, mediaite, politico, foxnews, nytimes, and msn account for <strong>634 browser visits across 15 weekdays</strong> — 30% of all work-hours browsing. This is a pull-to-refresh habit consuming ~2–3 hours daily in scattered visits.</div>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What the automated version looks like</div>
+        <div class="auto-section-body">A daily AI brief (Claude + NewsAPI or a Substack digest) hits your inbox at 7am with 5 bullets on what matters. Site-blocking rules (1Blocker or Screen Time) restrict the news domains 9am–12pm Monday–Friday. Zero willpower required.</div>
+      </div>
+    </div>
+
+    <!-- #2 -->
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>
+          <div class="auto-rank">#2 — DIRECT FUNNEL IMPACT</div>
+          <div class="auto-outcome">Every LinkedIn InMail and inbound lead gets a qualified response within the hour — without you touching it</div>
+        </div>
+        <div class="hours-pill">2–3 hrs/week reclaimed</div>
+      </div>
+      <div class="auto-meta">
+        <span class="tag tag-yellow">Medium lift (half a day)</span>
+        <span class="tag tag-green">Directly funds top goal</span>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What's happening today</div>
+        <div class="auto-section-body">Nathan Shaver's InMail (MSx/EMBA, high intent) appeared in inbox Apr 16 and Apr 19 with no visible response. Ignacio Baselga required a 2-week chain before booking. Inbound interest is arriving but leaking through slow response.</div>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What the automated version looks like</div>
+        <div class="auto-section-body">Gmail filter routes MBA-related InMails and intro requests to a Claude agent. Agent reads the message, drafts a personalized response with a Calendly link, and drops it in a "review &amp; send" folder. You spend 30 seconds approving, not writing. High-intent leads (Wharton, Stanford, MIT signals) get priority flagging.</div>
+      </div>
+    </div>
+
+    <!-- #3 -->
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>
+          <div class="auto-rank">#3 — CONTENT ENGINE UNLOCK</div>
+          <div class="auto-outcome">Gamma content publishes to LinkedIn on a schedule without you touching it</div>
+        </div>
+        <div class="hours-pill">1–2 hrs/week reclaimed</div>
+      </div>
+      <div class="auto-meta">
+        <span class="tag tag-green">Quick win (under 2 hrs)</span>
+        <span class="tag tag-blue">Closes Gamma→LinkedIn gap</span>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What's happening today</div>
+        <div class="auto-section-body">You're creating in Gamma (121 visits) but LinkedIn shows only 39 visits and no posting cadence. The creation is happening — the publishing step is the missing link. Content sits in drafts.</div>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What the automated version looks like</div>
+        <div class="auto-section-body">Gamma export triggers a Claude reformatting step (deck → LinkedIn post in your voice). Output goes to a Buffer/Taplio queue. You review a weekly batch on Friday and hit approve. Three posts per week go live without individual effort per post.</div>
+      </div>
+    </div>
+
+    <!-- #4 -->
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>
+          <div class="auto-rank">#4 — INTRO CALL EFFICIENCY</div>
+          <div class="auto-outcome">Intro calls are pre-qualified and batched — you only talk to people worth 15 minutes</div>
+        </div>
+        <div class="hours-pill">1.5 hrs/week reclaimed</div>
+      </div>
+      <div class="auto-meta">
+        <span class="tag tag-yellow">Medium lift (half a day)</span>
+        <span class="tag tag-blue">CRM/Calendly integration</span>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What's happening today</div>
+        <div class="auto-section-body">14 intro calls in 2 weeks at scattered times (8:15am, 5:15pm, 5:30pm, etc.) with no visible pre-qualification. Anyone on Leland can book a 15-min slot. Some are high-fit (Alessandro became a recurring client), others are unclear-intent.</div>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What the automated version looks like</div>
+        <div class="auto-section-body">Calendly booking triggers a 3-question async form (target school, timeline, budget signal). Claude reads the form, scores fit, and either confirms the call or routes low-fit prospects to a self-service FAQ + mbai.app trial. All calls batched to Tue/Thu afternoons. You arrive to every call with a one-paragraph prep note.</div>
+      </div>
+    </div>
+
+    <!-- #5 -->
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>
+          <div class="auto-rank">#5 — DAILY OPERATIONS</div>
+          <div class="auto-outcome">Leland Digest generates your daily action list automatically — no reading required</div>
+        </div>
+        <div class="hours-pill">30–45 min/week reclaimed</div>
+      </div>
+      <div class="auto-meta">
+        <span class="tag tag-green">Quick win (under 2 hrs)</span>
+        <span class="tag tag-dim">Cognitive load reduction</span>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What's happening today</div>
+        <div class="auto-section-body">The Leland Daily Digest arrives every day at 8pm. You read it and manually decide what action to take next morning. When it says "None today" you still read it. The reading + deciding step happens daily even when output is zero.</div>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What the automated version looks like</div>
+        <div class="auto-section-body">A Gmail filter + Claude hook reads the incoming digest, extracts action items and new sessions, and pushes a formatted morning brief (with draft responses for any client messages) to your inbox by 7am. You see 1–3 specific actions with text ready to send, not a digest to process.</div>
+      </div>
+    </div>
+
+    <!-- #6 -->
+    <div class="auto-card">
+      <div class="auto-header">
+        <div>
+          <div class="auto-rank">#6 — CLIENT EXPERIENCE</div>
+          <div class="auto-outcome">Every admitted client gets a warm, personalized response that sounds like you — without you writing it</div>
+        </div>
+        <div class="hours-pill">30 min/week reclaimed</div>
+      </div>
+      <div class="auto-meta">
+        <span class="tag tag-green">Quick win (under 2 hrs)</span>
+        <span class="tag tag-blue">Reputation + referral signal</span>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What's happening today</div>
+        <div class="auto-section-body">Rishav admitted to Stanford → "Great news! Congratulations and well deserved! Mike" (5 words). Fred admitted → "That's great news! Congrats." Clients who just got into Stanford deserve more than that — and a well-crafted response is a referral trigger. You're leaving relationship capital on the table.</div>
+      </div>
+      <div class="auto-section">
+        <div class="auto-section-label">What the automated version looks like</div>
+        <div class="auto-section-body">Gmail filter detects subject patterns ("admitted," "got in," "acceptance," "I got the call"). Claude drafts a 4-sentence response in your voice referencing the specific school and their story context. Drops into review queue. You spend 10 seconds, hit send. Every win gets a proper celebration response.</div>
+      </div>
+    </div>
+
+  </div><!-- end section 4 -->
+
+  <hr class="divider" />
+
+  <!-- ===================== SECTION 5: DATA SOURCES ===================== -->
+  <div class="section">
+    <div class="section-header">
+      <h2>Data Sources</h2>
+    </div>
+    <div class="source-grid">
+      <div class="source-card">
+        <div class="source-name">Chrome Browser History</div>
+        <div class="source-range">April 1–21, 2026</div>
+        <div class="source-status text-green">✓ Used — 2,122 visits analyzed</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Google Calendar</div>
+        <div class="source-range">April 2–21, 2026</div>
+        <div class="source-status text-green">✓ Used — 105 weekday events</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Gmail (Sent + Inbox)</div>
+        <div class="source-range">March 22–April 21, 2026</div>
+        <div class="source-status text-green">✓ Used — 50+ threads analyzed</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Mac App Usage</div>
+        <div class="source-range">knowledgeC.db</div>
+        <div class="source-status text-red">✗ Blocked — needs Full Disk Access in System Settings</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">Slack</div>
+        <div class="source-range">Not connected</div>
+        <div class="source-status text-yellow">⚠ Connect via claude.ai › Settings › Connectors (~2 min)</div>
+      </div>
+      <div class="source-card">
+        <div class="source-name">HubSpot CRM</div>
+        <div class="source-range">Connected but not queried</div>
+        <div class="source-status text-yellow">⚠ Pipeline data available — re-run to include</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Time Audit — April 21, 2026 &nbsp;|&nbsp; Part of my AI Builder Automation Portfolio
+  </div>
+
+</div>
+</body>
+</html>
