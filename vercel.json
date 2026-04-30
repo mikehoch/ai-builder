@@ -5,7 +5,9 @@
     { "src": "*.html", "use": "@vercel/static" },
     { "src": "*.css", "use": "@vercel/static" }
   ],
-  "rewrites": [
-    { "source": "/", "destination": "/ai-builder-dashboard.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1.js" },
+    { "src": "/", "dest": "/ai-builder-dashboard.html" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
