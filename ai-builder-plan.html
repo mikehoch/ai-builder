@@ -497,6 +497,120 @@
   <hr class="divider" />
 
 
+  <!-- ══ SECTION: SPRINT 2 — WHAT I BUILT ══ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sprint-badge" style="display:inline-block;margin-bottom:10px;">Sprint 2 · April 29, 2026</div>
+      <h2>Sprint 2: What I Built</h2>
+      <span class="section-tag">3 deliverables · Live in production</span>
+    </div>
+
+    <!-- Deliverable 1: Kanban Dashboard -->
+    <div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-rank">Deliverable 1 — Deployed Website</div>
+          <div class="goal-outcome">Kanban dashboard for the automation roadmap — live on Vercel, backed by Notion</div>
+        </div>
+        <span class="tag tag-green" style="flex-shrink:0;align-self:flex-start;padding:5px 13px;font-size:12px;">✓ Live</span>
+      </div>
+      <div class="goal-tags">
+        <span class="tag tag-green">Deployed</span>
+        <span class="tag tag-blue">Vercel · GitHub</span>
+        <span class="tag tag-crimson">Notion backend</span>
+      </div>
+      <hr class="goal-divider" />
+      <div class="goal-section">
+        <div class="goal-section-label">What was built</div>
+        <div class="goal-section-body">A full Kanban board at <a href="ai-builder-dashboard.html">ai-builder-dashboard.html</a> with four columns (Suggested, To Build, In Progress, Done). Cards are drag-and-drop with spring-easing animations and FLIP transitions. Column changes sync instantly to Notion — no localStorage, no manual saves. All 16 automation ideas from Sprint 1 are live as cards with correct statuses. The entire project is deployed to Vercel and publicly accessible.</div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-label">Live URLs</div>
+        <ul class="step-list">
+          <li><a href="ai-builder-dashboard.html">ai-builder-dashboard.html</a> — Kanban board</li>
+          <li><a href="ai-builder-plan.html">ai-builder-plan.html</a> — This page</li>
+          <li><a href="time-audit.html">time-audit.html</a> — Sprint 1 time audit</li>
+          <li><a href="/api/roadmap">/api/roadmap</a> — Live Notion API endpoint (16 cards)</li>
+        </ul>
+      </div>
+      <div class="goal-section" style="margin-top:14px;">
+        <div class="goal-section-label">Status</div>
+        <div class="goal-section-body"><span class="tag tag-green">Complete</span></div>
+      </div>
+    </div>
+
+    <!-- Deliverable 2: Notion Data Layer -->
+    <div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-rank">Deliverable 2 — Data Collection Tool</div>
+          <div class="goal-outcome">AI Automation Roadmap database in Notion — the single source of truth for what to build next</div>
+        </div>
+        <span class="tag tag-green" style="flex-shrink:0;align-self:flex-start;padding:5px 13px;font-size:12px;">✓ Live</span>
+      </div>
+      <div class="goal-tags">
+        <span class="tag tag-green">Deployed</span>
+        <span class="tag tag-crimson">Notion API</span>
+        <span class="tag tag-amber">16 automation ideas</span>
+      </div>
+      <hr class="goal-divider" />
+      <div class="goal-section">
+        <div class="goal-section-label">What was built</div>
+        <div class="goal-section-body">A structured Notion database ("AI Automation Roadmap") with Name, Status, Priority, Description, Submitted By, and Submitted At fields. All 16 automation ideas from Sprint 1 are populated with correct statuses. A Vercel serverless function at <code>/api/roadmap</code> exposes a GET endpoint (returns all cards) and a PATCH endpoint (updates status by Notion page ID). The dashboard writes back to Notion on every drag.</div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-label">Schema</div>
+        <ul class="step-list">
+          <li>Name (title) · Status (select: Suggested / To Build / In Progress / Done)</li>
+          <li>Priority (select: High / Medium / Low)</li>
+          <li>Description (rich text) · Submitted by (text) · Submitted at (date)</li>
+        </ul>
+      </div>
+      <div class="goal-section" style="margin-top:14px;">
+        <div class="goal-section-label">Status</div>
+        <div class="goal-section-body"><span class="tag tag-green">Complete</span></div>
+      </div>
+    </div>
+
+    <!-- Deliverable 3: Automation Advisor -->
+    <div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-rank">Deliverable 3 — Automation Advisor Agent</div>
+          <div class="goal-outcome">A three-mode Claude skill that reads the roadmap and session history, then outputs a 60-second priority briefing</div>
+        </div>
+        <span class="tag tag-green" style="flex-shrink:0;align-self:flex-start;padding:5px 13px;font-size:12px;">✓ Live</span>
+      </div>
+      <div class="goal-tags">
+        <span class="tag tag-green">Deployed</span>
+        <span class="tag tag-crimson">Claude skill</span>
+        <span class="tag tag-blue">Notion · Filesystem</span>
+      </div>
+      <hr class="goal-divider" />
+      <div class="goal-section">
+        <div class="goal-section-label">What was built</div>
+        <div class="goal-section-body">A saved skill at <code>~/.claude/skills/automation-advisor/SKILL.md</code> with three modes. Mode 1 queries Notion live for roadmap status. Mode 2 scans the local filesystem and Claude Code session transcripts to surface what's actually been worked on. Mode 3 is an interactive build planner. Modes 1 and 2 run as parallel subagents and stitch into a single brief: priorities, stalls, and one automation to add next.</div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-label">Three modes</div>
+        <ul class="step-list">
+          <li>Mode 1 — Roadmap Check: reads Notion DB, surfaces what's In Progress vs. stalled vs. untouched</li>
+          <li>Mode 2 — Work Retrospective: scans session transcripts, identifies what was actually built, flags gaps</li>
+          <li>Mode 3 — Build Planner: interactive — picks the next automation to build and breaks it into steps</li>
+        </ul>
+      </div>
+      <div class="goal-section" style="margin-top:14px;">
+        <div class="goal-section-label">Status</div>
+        <div class="goal-section-body"><span class="tag tag-green">Complete</span></div>
+      </div>
+    </div>
+
+  </div><!-- end sprint 2 section -->
+
+
+  <hr class="divider" />
+
+
   <!-- ══ SECTION 4: MY SYSTEM ══ -->
   <div class="section">
     <div class="section-header">
@@ -505,10 +619,10 @@
     </div>
 
     <div class="sprint-grid">
-      <div class="sprint-card">
-        <div class="sprint-label">🔒 Sprint 2</div>
-        <div class="sprint-title">Deployed website + data collection tool</div>
-        <div class="sprint-coming">Coming in Sprint 2</div>
+      <div class="sprint-card" style="border-left-color:var(--green);opacity:1;">
+        <div class="sprint-label" style="color:var(--green);">✓ Sprint 2</div>
+        <div class="sprint-title" style="color:var(--base);">Kanban dashboard + Notion backend + Automation advisor agent</div>
+        <div class="sprint-coming" style="color:var(--green);font-style:normal;font-weight:600;">Complete — April 29, 2026</div>
       </div>
       <div class="sprint-card">
         <div class="sprint-label">🔒 Sprint 3</div>
@@ -536,7 +650,7 @@
 
   <!-- ══ FOOTER ══ -->
   <div class="footer">
-    AI Builder Automation Portfolio — April 28, 2026 &nbsp;|&nbsp; Built in L2
+    AI Builder Automation Portfolio — Updated April 29, 2026 &nbsp;|&nbsp; Built in L2
   </div>
 
 </div>
