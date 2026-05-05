@@ -751,5 +751,228 @@
   /* ───────────────────── Boot ───────────────────── */
   initBoard();
 </script>
+
+<!-- ══ BUILD PLANS ══ -->
+<style>
+  .build-plans {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+  .build-plans-header {
+    border-top: 2px solid var(--crimson);
+    padding-top: 40px;
+    margin-bottom: 32px;
+  }
+  .build-plans-eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .build-plans-header h2 {
+    font-family: var(--font-display);
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--crimson);
+  }
+  .build-plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px 32px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+  .build-plan-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .build-plan-card-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--base);
+    margin-bottom: 6px;
+    line-height: 1.3;
+  }
+  .build-plan-card-meta {
+    font-size: 12px;
+    color: var(--dim);
+  }
+  .build-plan-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(245,159,10,0.12);
+    border: 1px solid rgba(245,159,10,0.3);
+    color: #92610A;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    border-radius: 20px;
+    padding: 4px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .build-plan-what {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.75;
+    margin-bottom: 24px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .build-plan-subbuilds {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .subbuild {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .subbuild-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--crimson);
+    margin-bottom: 6px;
+  }
+  .subbuild-title {
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--base);
+    margin-bottom: 6px;
+    line-height: 1.4;
+  }
+  .subbuild-body {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 8px;
+  }
+  .subbuild-time {
+    font-size: 11px;
+    color: var(--dim);
+    font-style: italic;
+  }
+  .subbuild.future {
+    opacity: 0.5;
+    border-style: dashed;
+  }
+  .build-plan-prompt-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--crimson);
+    border-radius: 0 10px 10px 0;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+  }
+  .build-plan-prompt-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--crimson);
+    margin-bottom: 10px;
+  }
+  .build-plan-prompt-text {
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--base);
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+  .build-plan-out-of-scope {
+    font-size: 12px;
+    color: var(--dim);
+    line-height: 1.8;
+  }
+  .build-plan-out-of-scope strong {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 4px;
+  }
+</style>
+
+<section class="build-plans">
+  <div class="build-plans-header">
+    <div class="build-plans-eyebrow">Scoped Builds</div>
+    <h2>Build Plans</h2>
+  </div>
+
+  <!-- Leland Messages: Daily Brief -->
+  <div class="build-plan-card">
+    <div class="build-plan-card-header">
+      <div>
+        <div class="build-plan-card-title">Leland Messages: Daily Brief</div>
+        <div class="build-plan-card-meta">Scoped May 4, 2026 &nbsp;·&nbsp; Area: Leland &nbsp;·&nbsp; Priority: High</div>
+      </div>
+      <span class="build-plan-status">⚡ In Progress</span>
+    </div>
+
+    <div class="build-plan-what">
+      An on-demand Claude agent that opens joinleland.com in your browser while you're already logged in, reads every message thread active in the last 7 days, classifies each contact (new lead / warm lead / active client), applies urgency logic, and returns a structured brief with three sections: a priority action list, per-contact summaries with draft replies, and a full status table. Run it on demand; output lands directly in Claude's response to copy and edit from.
+    </div>
+
+    <div class="build-plan-subbuilds">
+      <div class="subbuild">
+        <div class="subbuild-label">Sub-build 1 · v1 Focus</div>
+        <div class="subbuild-title">Inbox Scraper</div>
+        <div class="subbuild-body">Claude in Chrome navigates joinleland.com/inbox, clicks into each thread, and returns raw structured data: contact name, timestamps, and full message text per thread.</div>
+        <div class="subbuild-time">Est. 1–2 hours</div>
+      </div>
+      <div class="subbuild">
+        <div class="subbuild-label">Sub-build 2</div>
+        <div class="subbuild-title">Classifier + Brief Generator</div>
+        <div class="subbuild-body">Classifies each contact, applies urgency logic (Urgent / Recommend reply / No reply needed), generates context summaries, and drafts a reply for every thread that needs one.</div>
+        <div class="subbuild-time">Est. 1 hour</div>
+      </div>
+      <div class="subbuild future">
+        <div class="subbuild-label">Sub-build 3 · Future</div>
+        <div class="subbuild-title">Packaged Runner</div>
+        <div class="subbuild-body">Combines scrape + brief into a single slash command or scheduled agent. Adds push delivery.</div>
+        <div class="subbuild-time">Out of scope for v1</div>
+      </div>
+    </div>
+
+    <div class="build-plan-prompt-block">
+      <div class="build-plan-prompt-label">Starting Prompt — Sub-build 1</div>
+      <div class="build-plan-prompt-text">I want to build a Leland inbox scraper using Claude in Chrome.
+
+Goal: Navigate to https://www.joinleland.com/inbox while I'm already logged in, read every visible message thread, click into each one to capture the full conversation history, and return structured data for each thread: contact name, date of most recent message, and the full message text in chronological order.
+
+Scope for this first version:
+- Only threads with activity in the last 7 days
+- Click into each thread to get full message content (not just previews)
+- Return raw data as a structured list — no summarizing yet, just extraction
+- If a thread can't be read or navigation fails, note it and continue
+
+Start by navigating to joinleland.com/inbox, taking a screenshot, and describing what you see. Then we'll map the navigation pattern before writing any automation logic.</div>
+    </div>
+
+    <div class="build-plan-out-of-scope">
+      <strong>Out of v1</strong>
+      Auto-sending drafts &nbsp;·&nbsp; Scheduled runs &nbsp;·&nbsp; HubSpot sync &nbsp;·&nbsp; Attachment handling &nbsp;·&nbsp; Inbox pagination &nbsp;·&nbsp; Custom interface
+    </div>
+  </div>
+
+</section>
 </body>
 </html>
