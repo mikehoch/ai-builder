@@ -611,6 +611,125 @@
   <hr class="divider" />
 
 
+  <!-- ══ SECTION: SPRINT 4 — WHAT I BUILT ══ -->
+  <div class="section">
+    <div class="section-header">
+      <div class="sprint-badge" style="display:inline-block;margin-bottom:10px;">Sprint 4 · May 5, 2026</div>
+      <h2>Sprint 4: What I Built</h2>
+      <span class="section-tag">3 deliverables · Knowledge system + agentic workflow scoped</span>
+    </div>
+
+    <!-- Deliverable 1: S5 Build -->
+    <div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-rank">Deliverable 1 — Agentic Workflow Design</div>
+          <div class="goal-outcome">S5 scoped and specced: a daily brief agent that reads the Leland inbox and drafts responses</div>
+        </div>
+        <span class="tag tag-green" style="flex-shrink:0;align-self:flex-start;padding:5px 13px;font-size:12px;">✓ Ready</span>
+      </div>
+      <div class="goal-tags">
+        <span class="tag tag-green">Scoped</span>
+        <span class="tag tag-crimson">Leland inbox</span>
+        <span class="tag tag-blue">Claude in Chrome</span>
+      </div>
+      <hr class="goal-divider" />
+      <div class="goal-section">
+        <div class="goal-section-label">What was built</div>
+        <div class="goal-section-body">A full scope and build spec for the Leland Messages Daily Brief — an on-demand agent that scrapes the Leland inbox via browser automation, classifies each contact as new lead, warm lead, or active client, applies urgency logic, and returns a three-section brief: priority action list, per-contact summaries with draft replies, and a full status table. The agent uses the knowledge wiki as live context for classification and drafting. Visualized as a flow diagram at <a href="leland-brief-flow.html">leland-brief-flow.html</a>.</div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-label">Key files</div>
+        <ul class="step-list">
+          <li><code>s5-scope.md</code> — trigger, output format, destination, key constraints</li>
+          <li><code>s5-build-spec.md</code> — full developer spec: inputs, tools, UI layout, scraping sequence, quality bar, known failure points</li>
+          <li><code>leland-brief-flow.html</code> — end-to-end flow diagram</li>
+        </ul>
+      </div>
+      <div class="goal-section" style="margin-top:14px;">
+        <div class="goal-section-label">Status</div>
+        <div class="goal-section-body"><span class="tag tag-green">Spec complete — ready to execute in Sprint 5</span></div>
+      </div>
+    </div>
+
+    <!-- Deliverable 2: Knowledge Wiki -->
+    <div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-rank">Deliverable 2 — Knowledge Wiki</div>
+          <div class="goal-outcome">8-article wiki in wiki/ giving the agent domain knowledge to classify contacts and draft in Mike's voice</div>
+        </div>
+        <span class="tag tag-green" style="flex-shrink:0;align-self:flex-start;padding:5px 13px;font-size:12px;">✓ Complete</span>
+      </div>
+      <div class="goal-tags">
+        <span class="tag tag-green">Complete</span>
+        <span class="tag tag-crimson">8 articles</span>
+        <span class="tag tag-blue">Plain .md · Claude-native</span>
+      </div>
+      <hr class="goal-divider" />
+      <div class="goal-section">
+        <div class="goal-section-label">What was built</div>
+        <div class="goal-section-body">A structured knowledge base in <code>wiki/</code> built from a structured interview and Mike's Google Drive source documents (reviewer guides, admissions reports, resume analysis, leadership frameworks). Written to be loaded as context by Claude — concise, scannable, cross-linked. Includes a force-directed knowledge graph at <code>wiki/knowledge-graph.html</code> and an <code>/ingest-info</code> skill for adding new sources.</div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-label">Articles</div>
+        <ul class="step-list">
+          <li><strong>01 · contact-types</strong> — New Lead, Warm Lead, Active Client: signals, urgency rules, what each type needs</li>
+          <li><strong>02 · applicant-profiles</strong> — Traditional, non-traditional, deferred, deadline-proximate, free-advice seeker</li>
+          <li><strong>03 · target-programs</strong> — Stanford GSB, HBS, Wharton in depth; full M7 quick reference table</li>
+          <li><strong>04 · application-components</strong> — Rounds, essays, resume, LORs, interviews, test scores, Stanford leadership framework</li>
+          <li><strong>05 · coaching-packages</strong> — Comprehensive vs. limited packages, 3-step offer sequencing</li>
+          <li><strong>06 · tone-and-voice</strong> — Core voice, what to avoid, phrases that work and don't</li>
+          <li><strong>07 · response-templates</strong> — 9 ready-to-use templates covering every message type</li>
+          <li><strong>08 · mba-vocab</strong> — ~50 terms: programs, application vocab, evaluation concepts, client shorthand</li>
+        </ul>
+      </div>
+      <div class="goal-section" style="margin-top:14px;">
+        <div class="goal-section-label">Status</div>
+        <div class="goal-section-body"><span class="tag tag-green">Complete</span></div>
+      </div>
+    </div>
+
+    <!-- Deliverable 3: Build Spec -->
+    <div class="goal-card">
+      <div class="goal-header">
+        <div>
+          <div class="goal-rank">Deliverable 3 — Build Spec</div>
+          <div class="goal-outcome">s5-build-spec.md: a developer-ready spec covering every dimension of the Leland brief agent</div>
+        </div>
+        <span class="tag tag-green" style="flex-shrink:0;align-self:flex-start;padding:5px 13px;font-size:12px;">✓ Complete</span>
+      </div>
+      <div class="goal-tags">
+        <span class="tag tag-green">Complete</span>
+        <span class="tag tag-crimson">Sprint 5 input</span>
+        <span class="tag tag-amber">Execution-ready</span>
+      </div>
+      <hr class="goal-divider" />
+      <div class="goal-section">
+        <div class="goal-section-label">What was built</div>
+        <div class="goal-section-body">A complete build spec grounded in a developer Q&A and a screenshot review of the Leland inbox UI. Covers: one-sentence purpose, trigger, inputs table, exact output format with examples, destination, which wiki files to load, tools and credentials, an 8-step scraping sequence, a three-tier quality bar, and 8 named failure points with defined detection signals and responses.</div>
+      </div>
+      <div class="goal-section">
+        <div class="goal-section-label">Spec sections</div>
+        <ul class="step-list">
+          <li>UI layout — three-panel SPA, Leland labels (Lead, Package in progress, hours remaining), unread indicator</li>
+          <li>Classification logic — Leland UI labels as primary signal before reading message content</li>
+          <li>Output format — exact structure for all three sections with worked examples</li>
+          <li>Known failure points — login wall, UI changes, thread load failures, thin context, post-call template gap</li>
+        </ul>
+      </div>
+      <div class="goal-section" style="margin-top:14px;">
+        <div class="goal-section-label">Status</div>
+        <div class="goal-section-body"><span class="tag tag-green">Complete — Sprint 5 executes from this spec</span></div>
+      </div>
+    </div>
+
+  </div><!-- end sprint 4 section -->
+
+
+  <hr class="divider" />
+
+
   <!-- ══ SECTION 4: MY SYSTEM ══ -->
   <div class="section">
     <div class="section-header">
@@ -629,10 +748,10 @@
         <div class="sprint-title">Automated n8n or Claude Routines workflow</div>
         <div class="sprint-coming">Coming in Sprint 3</div>
       </div>
-      <div class="sprint-card">
-        <div class="sprint-label">🔒 Sprint 4</div>
+      <div class="sprint-card" style="border-left-color:var(--green);opacity:1;">
+        <div class="sprint-label" style="color:var(--green);">✓ Sprint 4</div>
         <div class="sprint-title">Knowledge wiki context system</div>
-        <div class="sprint-coming">Coming in Sprint 4</div>
+        <div class="sprint-coming" style="color:var(--green);font-style:normal;font-weight:600;">Complete — May 5, 2026</div>
       </div>
       <div class="sprint-card">
         <div class="sprint-label">🔒 Sprint 5</div>
@@ -650,7 +769,7 @@
 
   <!-- ══ FOOTER ══ -->
   <div class="footer">
-    AI Builder Automation Portfolio — Updated April 29, 2026 &nbsp;|&nbsp; Built in L2
+    AI Builder Automation Portfolio — Updated May 5, 2026 &nbsp;|&nbsp; Built in L2
   </div>
 
 </div>
