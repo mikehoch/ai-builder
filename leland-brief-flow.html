@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leland Daily Brief — Build Flow</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --crimson:      #8B1538;
+      --crimson-mid:  rgba(139,21,56,0.12);
+      --crimson-line: rgba(139,21,56,0.25);
+      --amber:        #F59F0A;
+      --amber-mid:    rgba(245,159,10,0.12);
+      --amber-line:   rgba(245,159,10,0.35);
+      --green:        #059669;
+      --green-mid:    rgba(5,150,105,0.1);
+      --green-line:   rgba(5,150,105,0.3);
+      --blue:         #2563EB;
+      --blue-mid:     rgba(37,99,235,0.08);
+      --blue-line:    rgba(37,99,235,0.25);
+      --purple:       #7C3AED;
+      --purple-mid:   rgba(124,58,237,0.08);
+      --purple-line:  rgba(124,58,237,0.25);
+      --base:         #1A1C23;
+      --muted:        #6C727F;
+      --dim:          #9CA3AF;
+      --bg:           #F7F8FA;
+      --surface:      #FFFFFF;
+      --border:       #E5E7EB;
+      --font-display: 'Fraunces', Times, serif;
+      --font-ui:      'Inter', Helvetica, Arial, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--base);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 52px 24px 100px;
+    }
+
+    /* ── Page header ── */
+    .page-header {
+      max-width: 860px;
+      margin: 0 auto 56px;
+      padding-bottom: 28px;
+      border-bottom: 2px solid var(--crimson);
+    }
+    .page-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 10px;
+    }
+    .page-header h1 {
+      font-family: var(--font-display);
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--crimson);
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: var(--muted);
+      max-width: 580px;
+    }
+    .page-meta {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--dim);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .page-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ── Flow canvas ── */
+    .flow {
+      max-width: 860px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    /* ── Phase label ── */
+    .phase-label {
+      align-self: flex-start;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 10px;
+      margin-top: 8px;
+      padding-left: 2px;
+    }
+    .phase-label.phase-1  { color: var(--blue); }
+    .phase-label.phase-2  { color: var(--amber); }
+    .phase-label.phase-3  { color: var(--crimson); }
+    .phase-label.phase-out { color: var(--green); }
+
+    /* ── Connector ── */
+    .connector {
+      width: 2px;
+      background: var(--border);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .connector::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--border);
+    }
+    .connector.c-blue   { background: var(--blue);   } .connector.c-blue::after   { border-top-color: var(--blue); }
+    .connector.c-amber  { background: var(--amber);  } .connector.c-amber::after  { border-top-color: var(--amber); }
+    .connector.c-crimson{ background: var(--crimson);} .connector.c-crimson::after{ border-top-color: var(--crimson); }
+    .connector.c-green  { background: var(--green);  } .connector.c-green::after  { border-top-color: var(--green); }
+
+    .conn-sm  { height: 28px; }
+    .conn-md  { height: 44px; }
+    .conn-lg  { height: 56px; }
+
+    /* ── Trigger node ── */
+    .trigger-node {
+      background: var(--crimson);
+      color: #fff;
+      border-radius: 40px;
+      padding: 10px 28px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 16px rgba(139,21,56,0.25);
+    }
+    .trigger-node .icon { font-size: 16px; }
+
+    /* ── Phase block ── */
+    .phase-block {
+      width: 100%;
+      border-radius: 16px;
+      padding: 26px 28px 28px;
+      border: 1px solid;
+      position: relative;
+    }
+    .phase-block.blue   { background: var(--blue-mid);   border-color: rgba(37,99,235,0.2); }
+    .phase-block.amber  { background: var(--amber-mid);  border-color: rgba(245,159,10,0.25); }
+    .phase-block.crimson{ background: var(--crimson-mid);border-color: rgba(139,21,56,0.18); }
+    .phase-block.green  { background: var(--green-mid);  border-color: rgba(5,150,105,0.22); }
+    .phase-block.purple { background: var(--purple-mid); border-color: rgba(124,58,237,0.22); }
+
+    .phase-block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+    .phase-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .blue   .phase-icon { background: rgba(37,99,235,0.15); }
+    .amber  .phase-icon { background: rgba(245,159,10,0.18); }
+    .crimson .phase-icon{ background: rgba(139,21,56,0.12); }
+    .green  .phase-icon { background: rgba(5,150,105,0.15); }
+    .purple .phase-icon { background: rgba(124,58,237,0.15); }
+
+    .phase-block-title {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--base);
+      line-height: 1.25;
+    }
+    .phase-block-subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+    .phase-badge {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .blue   .phase-badge { background: rgba(37,99,235,0.15);  color: var(--blue); }
+    .amber  .phase-badge { background: rgba(245,159,10,0.2);  color: #92610A; }
+    .crimson .phase-badge{ background: rgba(139,21,56,0.12);  color: var(--crimson); }
+    .green  .phase-badge { background: rgba(5,150,105,0.15);  color: var(--green); }
+    .purple .phase-badge { background: rgba(124,58,237,0.15); color: var(--purple); }
+
+    /* ── Step list inside phase ── */
+    .step-rows {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .step-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .blue .step-num    { background: rgba(37,99,235,0.12);  color: var(--blue); }
+    .amber .step-num   { background: rgba(245,159,10,0.18); color: #92610A; }
+    .crimson .step-num { background: rgba(139,21,56,0.1);   color: var(--crimson); }
+    .green .step-num   { background: rgba(5,150,105,0.12);  color: var(--green); }
+    .purple .step-num  { background: rgba(124,58,237,0.12); color: var(--purple); }
+
+    .step-content { flex: 1; }
+    .step-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--base);
+      margin-bottom: 2px;
+    }
+    .step-detail {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .step-code {
+      display: inline-block;
+      font-family: 'Courier New', monospace;
+      font-size: 11px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 1px 6px;
+      color: var(--crimson);
+      margin-top: 3px;
+    }
+
+    /* ── Branch fork ── */
+    .branch-container {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 12px;
+      position: relative;
+    }
+    .branch-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: calc(16.67% + 6px);
+      right: calc(16.67% + 6px);
+      height: 2px;
+      background: var(--amber);
+      z-index: 1;
+    }
+    .branch-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px 18px;
+      position: relative;
+    }
+    .branch-card::before {
+      content: '';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 2px;
+      height: 12px;
+      background: var(--amber);
+    }
+    .branch-card::after {
+      content: '';
+      position: absolute;
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid var(--amber);
+    }
+    .branch-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .branch-lead-new   .branch-label { color: var(--blue); }
+    .branch-lead-warm  .branch-label { color: var(--amber); }
+    .branch-client     .branch-label { color: var(--crimson); }
+
+    .branch-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--base);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .branch-action {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .branch-tag {
+      display: inline-block;
+      margin-top: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+    .branch-lead-new  .branch-tag { background: rgba(37,99,235,0.1);  color: var(--blue); }
+    .branch-lead-warm .branch-tag { background: rgba(245,159,10,0.15); color: #92610A; }
+    .branch-client    .branch-tag { background: rgba(139,21,56,0.1);   color: var(--crimson); }
+
+    /* ── Urgency row ── */
+    .urgency-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .urgency-card {
+      border-radius: 10px;
+      padding: 14px 16px;
+      border: 1px solid;
+    }
+    .urgency-urgent    { background: rgba(139,21,56,0.07); border-color: rgba(139,21,56,0.2); }
+    .urgency-recommend { background: rgba(245,159,10,0.08); border-color: rgba(245,159,10,0.25); }
+    .urgency-none      { background: var(--surface);        border-color: var(--border); }
+
+    .urgency-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+    .urgency-urgent    .urgency-dot { background: var(--crimson); }
+    .urgency-recommend .urgency-dot { background: var(--amber); }
+    .urgency-none      .urgency-dot { background: var(--dim); }
+
+    .urgency-status {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .urgency-urgent    .urgency-status { color: var(--crimson); }
+    .urgency-recommend .urgency-status { color: #92610A; }
+    .urgency-none      .urgency-status { color: var(--muted); }
+
+    .urgency-rule {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    /* ── Output sections ── */
+    .output-grid {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    .output-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: 3px solid;
+      border-radius: 0 0 12px 12px;
+      padding: 16px 18px;
+    }
+    .output-card:nth-child(1) { border-top-color: var(--crimson); }
+    .output-card:nth-child(2) { border-top-color: var(--blue); }
+    .output-card:nth-child(3) { border-top-color: var(--green); }
+    .output-num {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-bottom: 5px;
+    }
+    .output-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--base);
+      margin-bottom: 7px;
+      line-height: 1.3;
+    }
+    .output-desc {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .output-example {
+      margin-top: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.65;
+      font-family: 'Courier New', monospace;
+    }
+
+    /* ── Data artifact pill ── */
+    .data-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 18px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--muted);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .data-pill .pill-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .data-pill.blue-pill   .pill-dot { background: var(--blue); }
+    .data-pill.amber-pill  .pill-dot { background: var(--amber); }
+    .data-pill.crimson-pill .pill-dot { background: var(--crimson); }
+    .data-pill.green-pill  .pill-dot { background: var(--green); }
+
+    /* ── Legend ── */
+    .legend {
+      max-width: 860px;
+      margin: 56px auto 0;
+      padding: 20px 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+    .legend-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dim);
+      margin-right: 4px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .legend-swatch {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    /* ── Nav ── */
+    .nav {
+      max-width: 860px;
+      margin: 0 auto 40px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--dim);
+    }
+    .nav a { color: var(--muted); border-bottom: 1px solid var(--border); }
+    .nav a:hover { color: var(--crimson); border-color: var(--crimson); }
+    .nav-sep { color: var(--border); }
+
+    @media (max-width: 640px) {
+      .branch-container,
+      .urgency-grid,
+      .output-grid { grid-template-columns: 1fr; }
+      .branch-container::before { display: none; }
+      .branch-card::before, .branch-card::after { display: none; }
+      .page-header h1 { font-size: 26px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="nav">
+  <a href="ai-builder-dashboard.html">Dashboard</a>
+  <span class="nav-sep">›</span>
+  <a href="ai-builder-plan.html">Build Plan</a>
+  <span class="nav-sep">›</span>
+  <span>Leland Daily Brief — Flow</span>
+</div>
+
+<!-- ══ PAGE HEADER ══ -->
+<div class="page-header">
+  <div class="page-eyebrow">Build Flow · Leland Automation</div>
+  <h1>Leland Messages:<br>Daily Brief</h1>
+  <p>End-to-end flow from inbox scrape to structured brief — three sub-builds, executed in sequence.</p>
+  <div class="page-meta">
+    <span>📅 Scoped May 4, 2026</span>
+    <span>⚡ Status: In Progress</span>
+    <span>🎯 Priority: High</span>
+    <span>🏷 Area: Leland</span>
+  </div>
+</div>
+
+
+<!-- ══ FLOW ══ -->
+<div class="flow">
+
+  <!-- TRIGGER -->
+  <div class="trigger-node">
+    <span class="icon">▶</span> Run agent (on demand)
+  </div>
+
+  <div class="connector c-blue conn-lg"></div>
+
+  <!-- ════ SUB-BUILD 1 ════ -->
+  <div class="phase-label phase-1">Sub-build 1 &nbsp;·&nbsp; Inbox Scraper</div>
+  <div class="phase-block blue">
+    <div class="phase-block-header">
+      <div class="phase-icon">🌐</div>
+      <div>
+        <div class="phase-block-title">Browser Automation</div>
+        <div class="phase-block-subtitle">Claude in Chrome navigates joinleland.com while logged in</div>
+      </div>
+      <span class="phase-badge">Est. 1–2 hrs to build</span>
+    </div>
+    <div class="step-rows">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Navigate to inbox</div>
+          <div class="step-detail">Open <span class="step-code">joinleland.com/inbox</span>, take screenshot, confirm logged-in state and page structure</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Read thread list</div>
+          <div class="step-detail">Scan the visible inbox for all message threads — capture contact name and preview for each</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Filter to last 7 days</div>
+          <div class="step-detail">Skip threads with no activity in the past 7 days — only scrape recent, actionable conversations</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Click into each thread</div>
+          <div class="step-detail">Open each qualifying thread, scroll to capture full message history, extract the complete back-and-forth</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">Return raw structured data</div>
+          <div class="step-detail">For each thread: contact name · message timestamps · full message text in chronological order</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector c-blue conn-md"></div>
+  <div class="data-pill blue-pill">
+    <span class="pill-dot"></span>
+    Raw thread data — [contact, timestamp, messages[]]
+  </div>
+  <div class="connector c-amber conn-md"></div>
+
+  <!-- ════ SUB-BUILD 2a: CLASSIFICATION ════ -->
+  <div class="phase-label phase-2">Sub-build 2 &nbsp;·&nbsp; Classifier + Brief Generator</div>
+  <div class="phase-block amber" style="margin-bottom: 16px;">
+    <div class="phase-block-header">
+      <div class="phase-icon">🔀</div>
+      <div>
+        <div class="phase-block-title">Contact Classification</div>
+        <div class="phase-block-subtitle">Each contact is assigned a type based on relationship and conversation context</div>
+      </div>
+      <span class="phase-badge">Est. 1 hr to build</span>
+    </div>
+    <div class="step-rows" style="margin-bottom: 20px;">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Read thread context</div>
+          <div class="step-detail">Analyze message history — first message sent, tone, what's been discussed, what's outstanding</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Assign contact type</div>
+          <div class="step-detail">Classify each contact into one of three categories based on relationship stage</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Branch fork -->
+    <div class="branch-container">
+      <div class="branch-card branch-lead-new">
+        <div class="branch-label">New Lead</div>
+        <div class="branch-title">First contact, intro call scheduled or pending</div>
+        <div class="branch-action">Confirm upcoming call · Ask for resume and target school list if not provided</div>
+        <span class="branch-tag">Confirm & qualify</span>
+      </div>
+      <div class="branch-card branch-lead-warm">
+        <div class="branch-label">Warm Lead</div>
+        <div class="branch-title">Intro call completed, considering coaching</div>
+        <div class="branch-action">Follow up with recommended next steps · Present coaching package options</div>
+        <span class="branch-tag">Convert</span>
+      </div>
+      <div class="branch-card branch-client">
+        <div class="branch-label">Active Client</div>
+        <div class="branch-title">Paying client in an active engagement</div>
+        <div class="branch-action">Respond to questions or logistics · Address agenda items and scheduling</div>
+        <span class="branch-tag">Respond</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- URGENCY SCORING -->
+  <div class="phase-block crimson" style="margin-bottom: 0;">
+    <div class="phase-block-header">
+      <div class="phase-icon">🚦</div>
+      <div>
+        <div class="phase-block-title">Urgency Scoring</div>
+        <div class="phase-block-subtitle">Every contact gets a status — determines position in the brief</div>
+      </div>
+    </div>
+    <div class="urgency-grid">
+      <div class="urgency-card urgency-urgent">
+        <div class="urgency-status"><span class="urgency-dot"></span>Urgent</div>
+        <div class="urgency-rule">Active client who needs a response · OR warm lead that can convert to a paid client now</div>
+      </div>
+      <div class="urgency-card urgency-recommend">
+        <div class="urgency-status"><span class="urgency-dot"></span>Recommend Reply</div>
+        <div class="urgency-rule">Warm lead following up · New lead with a routine question · Routine client logistics</div>
+      </div>
+      <div class="urgency-card urgency-none">
+        <div class="urgency-status"><span class="urgency-dot"></span>No Reply Needed</div>
+        <div class="urgency-rule">Thread is acknowledged and current · No open question or pending action</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector c-crimson conn-md"></div>
+  <div class="data-pill crimson-pill">
+    <span class="pill-dot"></span>
+    Classified threads — [type, urgency, context]
+  </div>
+  <div class="connector c-crimson conn-md"></div>
+
+  <!-- BRIEF GENERATION -->
+  <div class="phase-block purple" style="margin-bottom: 0;">
+    <div class="phase-block-header">
+      <div class="phase-icon">✍️</div>
+      <div>
+        <div class="phase-block-title">Brief Generation</div>
+        <div class="phase-block-subtitle">Structured prompt produces summaries and draft replies per contact</div>
+      </div>
+    </div>
+    <div class="step-rows">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Summarize context per contact</div>
+          <div class="step-detail">2–3 sentences capturing what's been discussed, what's pending, and what Mike needs to know before replying</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">Draft reply for every thread needing one</div>
+          <div class="step-detail">Tone-matched to contact type — confirm/qualify for new leads, conversion-focused for warm leads, responsive and practical for active clients</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">Assemble the brief</div>
+          <div class="step-detail">Order by urgency (Urgent first), then structure into three sections below</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="connector c-green conn-lg"></div>
+  <div class="data-pill green-pill">
+    <span class="pill-dot"></span>
+    Formatted brief — ready to read in 5 minutes
+  </div>
+  <div class="connector c-green conn-md"></div>
+
+  <!-- ════ OUTPUT ════ -->
+  <div class="phase-label phase-out">Output &nbsp;·&nbsp; Three-Section Brief</div>
+  <div class="output-grid">
+    <div class="output-card">
+      <div class="output-num">Section 1</div>
+      <div class="output-title">Priority Action List</div>
+      <div class="output-desc">All contacts requiring follow-up, ordered by urgency, with a 3–5 word action label for each.</div>
+      <div class="output-example">
+        Jordan T. — confirm meeting<br>
+        Sarah K. — recommend package<br>
+        Alex M. — answer essay Q
+      </div>
+    </div>
+    <div class="output-card">
+      <div class="output-num">Section 2</div>
+      <div class="output-title">Contact Summaries + Drafts</div>
+      <div class="output-desc">For each contact: context summary, then a draft reply to copy and edit. Only shown for threads needing a reply.</div>
+      <div class="output-example">
+        [Context] Jordan booked a call for…<br>
+        [Draft] Hi Jordan, looking forward…
+      </div>
+    </div>
+    <div class="output-card">
+      <div class="output-num">Section 3</div>
+      <div class="output-title">Full Status Table</div>
+      <div class="output-desc">All contacts active in the last 7 days — name, last contact date, and status (Urgent / Recommend reply / No reply needed).</div>
+      <div class="output-example">
+        Jordan T. · May 3 · Urgent<br>
+        Sarah K. · May 2 · Recommend<br>
+        Alex M. · May 1 · No reply
+      </div>
+    </div>
+  </div>
+
+</div><!-- end .flow -->
+
+
+<!-- ══ LEGEND ══ -->
+<div class="legend">
+  <span class="legend-title">Legend</span>
+  <div class="legend-item"><span class="legend-swatch" style="background:rgba(37,99,235,0.25);"></span> Sub-build 1 — Browser scraping</div>
+  <div class="legend-item"><span class="legend-swatch" style="background:rgba(245,159,10,0.3);"></span> Sub-build 2a — Classification</div>
+  <div class="legend-item"><span class="legend-swatch" style="background:rgba(139,21,56,0.2);"></span> Sub-build 2b — Urgency scoring</div>
+  <div class="legend-item"><span class="legend-swatch" style="background:rgba(124,58,237,0.2);"></span> Sub-build 2c — Brief generation</div>
+  <div class="legend-item"><span class="legend-swatch" style="background:rgba(5,150,105,0.2);"></span> Output</div>
+</div>
+
+</body>
+</html>
